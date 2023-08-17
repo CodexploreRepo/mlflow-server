@@ -23,23 +23,24 @@ services:
       - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
       - S3_BUCKET=${S3_BUCKET}
       - DB_BACKEND=postgresql://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
-    ports:
-      - 5002:5000
+    expose:
+      - 5000
     networks:
+      - frontend
       - backend
     depends_on:
       - db
-  # nginx:
-  #   restart: always
-  #   build: ./nginx
-  #   image: mlflow_nginx
-  #   container_name: mlflow_nginx
-  #   ports:
-  #     - "80:80"
-  #   networks:
-  #     - frontend
-  #   depends_on:
-  #     - mlflow
+  nginx:
+    restart: always
+    build: ./nginx
+    image: mlflow_nginx
+    container_name: mlflow_nginx
+    ports:
+      - 8080:80
+    networks:
+      - frontend
+    depends_on:
+      - mlflow
   # pgadmin:
   #   container_name: pgadmin4_container
   #   image: dpage/pgadmin4
@@ -54,4 +55,7 @@ services:
 volumes:
   mlflow_postgres:
 networks:
+  frontend:
+    driver: bridge
   backend:
+    driver: bridge
