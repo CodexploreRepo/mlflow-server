@@ -1,12 +1,19 @@
-FROM python:3.10-slim-buster
+FROM python:3.10-slim
+
+LABEL maintainer="quannguyen"
+LABEL organization="codexplore"
 
 WORKDIR /app
 
+ARG MLFLOW_VERSION
+
 COPY requirements.txt requirements.txt
-RUN apt-get update \
-    && apt-get -y install libpq-dev gcc \
+
+RUN apt-get update -y \
+    && apt-get install -y iputils-ping libpq-dev gcc \
     && pip3 install --upgrade pip \    
-    && pip3 install --no-cache-dir -r requirements.txt
+    && pip3 install --no-cache-dir -r requirements.txt \
+    && pip3 install --no-cache-dir mlflow==${MLFLOW_VERSION}
 
 EXPOSE 5000
 CMD mlflow server \
