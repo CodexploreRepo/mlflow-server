@@ -10,7 +10,7 @@ ARG MLFLOW_VERSION
 COPY requirements.txt requirements.txt
 
 RUN apt-get update -y \
-    && apt-get install -y iputils-ping libpq-dev gcc \
+    && apt-get -y install curl libpq-dev gcc \
     && pip3 install --upgrade pip \    
     && pip3 install --no-cache-dir -r requirements.txt \
     && pip3 install --no-cache-dir mlflow==${MLFLOW_VERSION}

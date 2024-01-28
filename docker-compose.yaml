@@ -10,6 +10,8 @@ services:
       POSTGRES_DB: ${DB_NAME}
     networks:
       - backend
+    ports:
+      - ${DB_PORT}:${DB_PORT}
     volumes:
       - mlflow_postgres:/var/lib/postgresql/data
     healthcheck:
@@ -23,8 +25,8 @@ services:
       context: mlflow/
       args:
         MLFLOW_VERSION: ${MLFLOW_VERSION}
-    image: mlflow_server
-    container_name: mlflow_server
+    image: haquan/mlflow_server:${MLFLOW_VERSION}
+    container_name: mlflow_server_container
     environment:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
@@ -37,10 +39,10 @@ services:
       - frontend
       - backend
     depends_on:
-      postgresql:
+      db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 10s
       timeout: 10s
       retries: 5
@@ -48,20 +50,21 @@ services:
 
   nginx:
     restart: always
-    build: ./nginx
+    build: nginx/
     image: mlflow_nginx
-    container_name: mlflow_nginx
+    container_name: mlflow_nginx_container
     ports:
-      - 8080:80
+      - "8080:80"
     networks:
       - frontend
     depends_on:
       - mlflow
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      test: ["CMD", "service", "nginx", "status"]
       interval: 10s
       timeout: 5s
       retries: 5
+
 volumes:
   mlflow_postgres:
 
